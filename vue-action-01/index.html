@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>VUE实战-购物车</title>
+		<script type="text/javascript" src="js/vue.js" ></script>
+		<style type="text/css">
+			#App{width: 100%;}
+			/*购物车代码*/
+			.pro-car{margin: 50px auto;width: 600px;border:solid 1px #e3e3e3;padding: 70px;}
+			.order-table{width: 100%;border: solid 1px #e9e9e9;border-collapse: collapse;border-spacing: 0;empty-cells: show;}
+			.order-table thead tr{background: #f7f7f7;font-size: 16px;font-weight: bold;white-space: nowrap;}
+			.order-table tr td{padding: 8px 16px;border: solid 1px #E9E9E9;}
+			.pro-number>button{width: 23px;height: 23px;box-sizing: border-box;padding: 2px;cursor: pointer;}
+			.pro-number>input{width: 40px;height: 24px;border: 1px;box-sizing: border-box;padding: 7px;border: solid 1px #E9E9E9;border-width: 1px 0px;text-align: center;}
+			
+			/*添加商品实例*/
+			.pro-add{margin: 50px auto;width: 600px;border:solid 1px #e3e3e3;padding: 70px;}
+			.pro-add-form>div{margin: 10px;}
+			.pro-add-form>div>input{border-radius: 3px;padding: 6px 12px;border: solid 1px #e3e3e3;}
+			.btn{padding: 8px 16px;cursor: pointer;}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<div class="pro-add">
+				<h2 style="margin-left: 10px;">添加商品</h2>
+				<div>
+					<form id="" onsubmit="return false;" class="pro-add-form">
+						<div>
+							<label>商品名称：</label>
+							<input type="text" v-model="product.name" />
+						</div>
+						<div>
+							<label>商品单价：</label>
+							<input type="text" v-model="product.price" />
+						</div>
+						<div>
+							<label>购买数量：</label>
+							<input type="text" v-model="product.num" />
+						</div>
+						<div>
+							<button class="btn" @click="handleAdd"/>添加到购物车</button>
+						</div>
+					</form>
+				</div>				
+			</div>
+			<div class="pro-car">
+				<h2>购物车</h2>
+				<table class="order-table">
+					<thead>
+						<tr>
+							<td><input type="checkbox" name="check" v-model="isCheckAll" id="checkAll" ></td>
+							<td>商品名称</td>
+							<td>商品单价</td>
+							<td>购买数量</td>
+							<td>操作</td>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="(pro,index) in proList">
+							<td>
+								<input type="checkbox" v-model="pro.check" name="check" > {{index+1}} 
+							</td>
+							<td>
+								{{pro.name}}
+							</td>
+							<td>
+								{{pro.price}}
+							</td>
+							<td class="pro-number">
+								<button @click="pro.num += 1">+</button>
+								<input :value="pro.num" readonly="true" />
+								<button @click="pro.num = pro.num <= 0 ? 0 : pro.num -= 1">-</button>
+							</td>
+							<td>
+								<button @click="handleRemove(index)">移除</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<p>总价：￥ {{totalPrice}}</p>
+			</div>
+		</div>
+		
+		
+		<script type="text/javascript">
+			var Product = function(){
+				var name =  '';
+				var price = '';
+				var num = '';
+				var check = true;
+			}
+			
+			var app = new Vue({
+				el: '#app',
+				data: {
+					proList: [
+						{name: 'Iphone7',price: 6188,num: 1, check: false},
+						{name: 'Ipad Pro',price: 5888,num: 1, check: false},
+						{name: 'MacBook Pro',price: 21488,num: 1, check: false}
+					],
+					product: new Product()
+				},
+				methods:{
+					handleRemove(index){
+						this.proList.splice(index,1);
+					},
+					handleAdd(){
+						this.proList.unshift(this.product);
+						this.product = new Product();
+					}
+				},
+				computed: {
+					// 计算购物车总价（已选中的商品）
+					totalPrice(){
+						return this.proList.reduce((total,info) => {
+							return total + (info.check ? info.price * info.num : 0)
+						},0);
+					},
+					// 计算是否全选
+					isCheckAll: {
+						get: function(){
+							return this.proList.length == this.proList.reduce((t,i) => t + (i.check ? 1 : 0) , 0)
+						},
+						set: function(check) {
+							this.proList.forEach(pro => pro.check = check);
+						}
+					}
+				}
+			})
+			
+		</script>
+	</body>
+</html>
